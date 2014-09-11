@@ -1,0 +1,93 @@
+<?php
+
+class UserRole extends DB\SQL\Mapper {
+
+    public function __construct(DB\SQL $db) {
+        parent::__construct($db,'userroles');
+    }
+
+    public function all() {
+        return $this->db->exec('SELECT * FROM userroles');
+    }
+
+    public function add($postdata) {
+        $data = json_decode($postdata);
+        $LongName = $data->LongName;
+        $ShortName = $data->ShortName;
+        $CreatedDate = date("Y-m-d H:i:s");
+        $Active = $data->Active == true ? 1 : 0;
+
+        $this->LongName = $LongName;
+        $this->ShortName = $ShortName;
+        $this->CreatedDate = $CreatedDate;
+        $this->Active = $Active;
+        $insertData = $this->save();
+
+        $this->LongName = null;
+        $this->ShortName = null;
+        $this->CreatedDate = null;
+        $this->Active = null;
+
+        $returndata = new stdClass();
+        $returndata->message = "UserRole added successfully";
+        $returndata->success = true;
+        $returndata->data = array(
+            'UserRoleID'=>$insertData->_id,
+            'LongName'=>$LongName,
+            'ShortName'=>$ShortName,
+            'CreatedDate'=>$CreatedDate,
+            'Active'=>$Active
+        );
+        return $returndata;
+    }
+
+    public function getById($id) {
+        $this->load(array('UserRoleID=?',$id));
+        $this->copyTo('POST');
+    }
+
+    public function edit($id, $putdata) {
+        $data = json_decode($putdata);
+        $LongName = $data->LongName;
+        $ShortName = $data->ShortName;
+        $Active = $data->Active == true ? 1 : 0;
+
+        $this->reset();
+        $this->load(array('UserRoleID=?',$id));
+        $this->LongName = $LongName;
+        $this->ShortName = $ShortName;
+        $this->Active = $Active;
+        $this->update();
+
+        $this->LongName = null;
+        $this->ShortName = null;
+        $this->CreatedDate = null;
+        $this->Active = null;
+
+        $returndata = new stdClass();
+        $returndata->message = "UserRole updated successfully";
+        $returndata->success = true;
+        $returndata->data = array(
+            'UserRoleID'=>$id,
+            'LongName'=>$LongName,
+            'ShortName'=>$ShortName,
+            'Active'=>$Active
+        );
+        return $returndata;
+    }
+
+    public function delete($id) {
+        $this->load(array('UserRoleID=?',$id));
+        $this->erase();
+
+        $returndata = new stdClass();
+        $returndata->message = "UserRole deleted successfully";
+        $returndata->success = true;
+        $returndata->data = array(
+            'UserRoleID'=>$id
+        );
+        return $returndata;
+    }
+
+
+}
